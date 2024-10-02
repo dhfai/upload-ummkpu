@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Spinner from '@/components/ui/spinner';
 
 interface GroupedData {
   kab_id: string;
-  kabupaten_nama: string; // Make sure this is included in your data model
+  kabupaten_nama: string;
   kecamatan_id: string;
   kecamatan_nama: string;
   kelurahan_id: string;
@@ -25,7 +26,7 @@ const KabupatenPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [kabupatenNama, setKabupatenNama] = useState<string | null>(null); // State to hold kabupaten name
+  const [kabupatenNama, setKabupatenNama] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,12 +38,8 @@ const KabupatenPage: React.FC = () => {
           throw new Error('Failed to fetch data');
         }
         const result = await response.json();
-        console.log('Grouped data:', result);
-
-        // Set data and kabupaten name
         setData(result);
-        setKabupatenNama(result[0]?.kabupaten_nama || null); // Assuming the kabupaten name is in the first item
-
+        setKabupatenNama(result[0]?.kabupaten_nama || null);
       } catch (error: any) {
         setError(error.message);
       } finally {
@@ -53,44 +50,46 @@ const KabupatenPage: React.FC = () => {
     fetchData();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <Spinner />;
+  if (error) return <div className="text-red-600">Error: {error}</div>;
 
-  // Group data by kecamatan
   const groupedData = data.reduce((acc, item) => {
-    const { kecamatan_nama } = item;
+    const { kecamatan_nama, kelurahan_nama } = item;
     if (!acc[kecamatan_nama]) {
-      acc[kecamatan_nama] = [];
+      acc[kecamatan_nama] = {};
     }
-    acc[kecamatan_nama].push(item);
+    if (!acc[kecamatan_nama][kelurahan_nama]) {
+      acc[kecamatan_nama][kelurahan_nama] = [];
+    }
+    acc[kecamatan_nama][kelurahan_nama].push(item);
     return acc;
-  }, {} as Record<string, GroupedData[]>);
+  }, {} as Record<string, Record<string, GroupedData[]>>);
 
-  // Handle search
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value.toLowerCase());
   };
 
-  // Filtered data based on search term
-  const filteredData = Object.entries(groupedData).reduce((acc, [kecamatan, items]) => {
-    const filteredItems = items.filter(item =>
-      String(item.no_tps).toLowerCase().includes(searchTerm) ||
-      String(item.kelurahan_nama).toLowerCase().includes(searchTerm)
-    );
+  const filteredData = Object.entries(groupedData).reduce((acc, [kecamatan, kelurahanItems]) => {
+    const filteredKelurahanItems = Object.entries(kelurahanItems).reduce((kelAcc, [kelurahan, items]) => {
+      const filteredItems = items.filter(item =>
+        String(item.no_tps).toLowerCase().includes(searchTerm) ||
+        String(item.kelurahan_nama).toLowerCase().includes(searchTerm)
+      );
 
-    if (filteredItems.length) {
-      acc[kecamatan] = filteredItems;
+      if (filteredItems.length) {
+        kelAcc[kelurahan] = filteredItems;
+      }
+      return kelAcc;
+    }, {} as Record<string, GroupedData[]>);
+
+    if (Object.keys(filteredKelurahanItems).length) {
+      acc[kecamatan] = filteredKelurahanItems;
     }
+
     return acc;
-  }, {} as Record<string, GroupedData[]>);
+  }, {} as Record<string, Record<string, GroupedData[]>>);
 
-  // Handle delete
   const handleDelete = async (tps_id: string) => {
-    console.log("Attempting to delete TPS ID:", tps_id);
-    if (!tps_id) {
-      console.error("tps_id is undefined");
-      return;
-    }
     try {
       const response = await fetch(`/api/delete/${tps_id}`, {
         method: 'DELETE',
@@ -107,114 +106,98 @@ const KabupatenPage: React.FC = () => {
     }
   };
 
-  return (
-    <div className='p-6'>
-      <h1 className="text-2xl font-semibold mb-4">{kabupatenNama || `Kabupaten ${id}`}</h1> {/* Display kabupaten name */}
+  // Calculate totals for any group of data
+  const calculateTotals = (items: GroupedData[]) => {
+    const totalTPS = items.length;
+    const totalL = items.reduce((sum, item) => sum + item.l, 0);
+    const totalP = items.reduce((sum, item) => sum + item.p, 0);
+    return { totalTPS, totalL, totalP };
+  };
 
+  // Total for the entire Kabupaten
+  const kabupatenTotals = calculateTotals(data);
+
+  return (
+    <div className="p-6 w-full">
+      <div className="mb-6 bg-gray-100 p-4 rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold mb-4">{kabupatenNama || `Kabupaten ${id}`}</h1>
+        <p>Total TPS: {kabupatenTotals.totalTPS}</p>
+        <p>Total L: {kabupatenTotals.totalL}</p>
+        <p>Total P: {kabupatenTotals.totalP}</p>
+      </div>
       <Input
         placeholder="Search by No TPS or Kelurahan"
         className="mb-4"
         value={searchTerm}
         onChange={handleSearch}
       />
-        {Object.entries(filteredData).length === 0 ? (
-            <div>No data available</div>
-        ): Object.entries(filteredData).map(([kelurahan, items]) => (
-            <div
-              key={kelurahan}
-              className={`overflow-x-auto w-full mb-10 border rounded-lg border-gray-300 shadow-lg' : ''}`} // Atur opacity jika dinonaktifkan
-            >
-                <Table className="min-w-full divide-y divide-gray-200">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Kecamatan
-                      </TableHead>
-                      <TableHead className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Kelurahan
-                      </TableHead>
-                      <TableHead className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        TPS
-                      </TableHead>
-                      <TableHead className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        L
-                      </TableHead>
-                      <TableHead className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        P
-                      </TableHead>
-                      <TableHead className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Action
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((item, index) => (
-                      <TableRow key={index} className="bg-white hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {item.kecamatan_nama}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {item.kelurahan_nama}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {item.no_tps}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {item.l}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {item.p}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => handleDelete(item.tps_id)}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
-                          >
-                            Hapus
-                          </button>
-                        </td>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-            </div>
-          ))}
 
-      {/* {Object.entries(filteredData).length === 0 ? (
-        <div>No data available for this kabupaten.</div>
-      ) : (
-        Object.entries(filteredData).map(([kecamatan, items]) => (
-          <div key={kecamatan} className="mb-6">
-            <h2 className="text-xl font-bold">{kecamatan}</h2>
-            <Table className="min-w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Kelurahan</TableHead>
-                  <TableHead>No TPS</TableHead>
-                  <TableHead>L</TableHead>
-                  <TableHead>P</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item.tps_id}>
-                    <TableCell>{item.kelurahan_nama}</TableCell>
-                    <TableCell>{item.no_tps}</TableCell>
-                    <TableCell>{item.l}</TableCell>
-                    <TableCell>{item.p}</TableCell>
-                    <TableCell>
-                      <Button variant="outline" style={{color: 'red'}} onClick={() => handleDelete(item.tps_id)}>
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+
+
+      {Object.entries(filteredData).length === 0 ? (
+        <div className="text-gray-500">No data available</div>
+      ) : Object.entries(filteredData).map(([kecamatan, kelurahanItems]) => {
+        const kecamatanTotals = calculateTotals(Object.values(kelurahanItems).flat());
+
+        return (
+          <div key={kecamatan} className="mb-10">
+            <h2 className="text-xl font-semibold mb-2">Kecamatan: {kecamatan}</h2>
+            <p>Total TPS: {kecamatanTotals.totalTPS}, Total L: {kecamatanTotals.totalL}, Total P: {kecamatanTotals.totalP}</p>
+
+            {Object.entries(kelurahanItems).map(([kelurahan, items]) => {
+              const kelurahanTotals = calculateTotals(items);
+
+              return (
+                <div key={kelurahan} className="mb-6">
+                  <div className="overflow-x-auto w-full mb-4 border rounded-lg border-gray-300 shadow-lg">
+                    <Table className="min-w-full divide-y divide-gray-200">
+                      <TableHeader className="bg-black ">
+                        <TableRow>
+                          <TableHead>Kecamatan</TableHead>
+                          <TableHead>Kelurahan</TableHead>
+                          <TableHead>No TPS</TableHead>
+                          <TableHead>L</TableHead>
+                          <TableHead>P</TableHead>
+                          <TableHead>Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {items.map((item, index) => (
+                          <TableRow key={index} className="bg-white hover:bg-gray-50">
+                            <TableCell>{kecamatan}</TableCell>
+                            <TableCell>{item.kelurahan_nama}</TableCell>
+                            <TableCell>{item.no_tps}</TableCell>
+                            <TableCell>{item.l}</TableCell>
+                            <TableCell>{item.p}</TableCell>
+                            <TableCell>
+                              <Button
+                                onClick={() => handleDelete(item.tps_id)}
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200"
+                              >
+                                Hapus
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      <TableFooter className='bg-foreground'>
+                        <TableRow>
+                          <TableCell>Total</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                          <TableCell>{kelurahanTotals.totalL}</TableCell>
+                          <TableCell>{kelurahanTotals.totalP}</TableCell>
+                          <TableCell></TableCell>
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        ))
-      )} */}
+        );
+      })}
     </div>
   );
 };
