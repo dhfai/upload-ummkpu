@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/drawer";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { X } from 'lucide-react';
-
+import CustomAlert from './global/CustomAlert';
 interface Kelurahan {
   id: number;
   kecamatan_id: number;
@@ -36,8 +36,9 @@ export default function DataSheets({ rows: initialRows }: DataSheetsProps) {
   const [filteredKelurahan, setFilteredKelurahan] = React.useState<Kelurahan[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const [rows, setRows] = React.useState(initialRows); // State for storing the rows data
+  const [rows, setRows] = React.useState(initialRows);
   const [message, setMessage] = React.useState<string>("");
+  const [loading, setLoading] = React.useState<boolean>(false); // State for loading
 
   // Fetch Kelurahan data from API
   React.useEffect(() => {
@@ -72,8 +73,8 @@ export default function DataSheets({ rows: initialRows }: DataSheetsProps) {
 
   // Handle delete row
   const handleDeleteRow = (indexToDelete: number) => {
-    const updatedRows = rows.filter((_, index) => index !== indexToDelete); // Remove row based on index
-    setRows(updatedRows); // Update rows state
+    const updatedRows = rows.filter((_, index) => index !== indexToDelete);
+    setRows(updatedRows);
   };
 
   // Handle form submission
@@ -90,13 +91,14 @@ export default function DataSheets({ rows: initialRows }: DataSheetsProps) {
       return;
     }
 
-    // Prepare data for submission
     const dataToSubmit = rows.map((row) => ({
       kelurahan_id: kelurahanData.id,
       tps: row.TPS,
       l: row.L,
       p: row.P,
     }));
+
+    setLoading(true); // Set loading to true
 
     try {
       const response = await fetch("/api/tps", {
@@ -109,7 +111,6 @@ export default function DataSheets({ rows: initialRows }: DataSheetsProps) {
 
       const result = await response.json();
 
-      // Display success or error message based on result
       const successMessages = result.results
         .filter((res: any) => res.success)
         .map((res: any) => res.message)
@@ -123,6 +124,8 @@ export default function DataSheets({ rows: initialRows }: DataSheetsProps) {
       setMessage(`${successMessages}\n${errorMessages}`);
     } catch (error) {
       setMessage("Error submitting data.");
+    } finally {
+      setLoading(false); // Set loading to false after completion
     }
   };
 
@@ -214,17 +217,25 @@ export default function DataSheets({ rows: initialRows }: DataSheetsProps) {
           </div>
 
           {message && (
-            <div className="mt-4 p-2 bg-gray-200 rounded-md">
-              <p>{message}</p>
+            <div className="mt-4">
+              <CustomAlert message={message} onClose={() => setMessage("")} />
             </div>
           )}
 
-          <DrawerFooter className="flex justify-between mt-6">
-            <Button className='bg-foreground hover:bg-background' variant={'outline'} onClick={handleSubmit}>Submit</Button>
-            <DrawerClose asChild>
-              <Button variant="outline" className='bg-foreground hover:bg-background'>Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
+            {loading ? (
+            <DrawerFooter className="flex justify-end mt-4">
+                <Button variant="outline" disabled>
+                    Loading...
+                </Button>
+            </DrawerFooter>
+            ) : (
+            <DrawerFooter className="flex justify-end mt-4">
+                <Button variant="outline" onClick={handleSubmit}>
+                    Kirim Data
+                </Button>
+            </DrawerFooter>
+            )}
+
         </div>
       </DrawerContent>
     </Drawer>

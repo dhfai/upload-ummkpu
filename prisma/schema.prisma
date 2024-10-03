@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model disabilitas {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kab_id          String?    @db.VarChar(4)
+  fisik           Int?
+  intelektual     Int?
+  mental          Int?
+  sensorik_wicara Int?
+  sensorik_rungu  Int?
+  sensorik_netra  Int?
+  total           Int?
+  kabupaten       kabupaten? @relation(fields: [kab_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model kabupaten {
+  id               String             @id @db.VarChar(4)
+  nama             String?            @db.VarChar(255)
+  coordsTop        String?            @db.VarChar(255)
+  coordsLeft       String?            @db.VarChar(255)
+  link             String?            @db.VarChar(255)
+  disabilitas      disabilitas[]
+  kecamatan        kecamatan[]
+  klasifikasi_usia klasifikasi_usia[]
+}
+
+model kecamatan {
+  id        String      @id @db.VarChar(6)
+  kab_id    String?     @db.VarChar(4)
+  nama      String?     @db.VarChar(255)
+  kabupaten kabupaten?  @relation(fields: [kab_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  kelurahan kelurahan[]
+}
+
+model kelurahan {
+  id           String     @id(map: "kelurahan_desa_pkey") @db.VarChar(10)
+  kecamatan_id String?    @db.VarChar(6)
+  nama         String?    @db.VarChar(255)
+  kecamatan    kecamatan? @relation(fields: [kecamatan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "kelurahan_desa_kecamatan_id_fkey")
+  tps          tps[]
+}
+
+model klasifikasi_usia {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kab_id         String?    @db.VarChar(4)
+  usia_0_20      Int?
+  usia_21_30     Int?
+  usia_31_40     Int?
+  usia_41_50     Int?
+  usia_51_60     Int?
+  usia_61_70     Int?
+  usia_71_keatas Int?
+  total          Int?
+  kabupaten      kabupaten? @relation(fields: [kab_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "klasifikasi_usia_kabupaten_id_fkey")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model kode_wilayah {
+  kode_wilayah String? @db.VarChar(255)
+  wilayah      String? @db.VarChar(255)
+
+  @@ignore
+}
+
+model tps {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kelurahan_id String?    @db.VarChar(10)
+  no_tps       Int?
+  l            Int?
+  p            Int?
+  kelurahan    kelurahan? @relation(fields: [kelurahan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
