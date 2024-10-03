@@ -51,7 +51,7 @@ export async function GET() {
       kecamatan_nama: k.kecamatan?.nama,
     }));
 
-    console.log('Fetched kelurahan:', formattedResult);
+    // console.log('Fetched kelurahan:', formattedResult);
 
     return NextResponse.json(formattedResult);
   } catch (error) {

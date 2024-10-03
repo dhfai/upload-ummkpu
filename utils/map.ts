@@ -5,7 +5,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'luwu_utara'
+      link: 'luwu_utara.xlsx'
     },
     {
       name: 'Luwu Timur',
@@ -13,7 +13,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'luwu_timur'
+      link: 'luwu_timur.xlsx'
     },
     {
       name: 'Toraja Utara',
@@ -21,7 +21,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'toraja_utara'
+      link: 'toraja_utara.xlsx'
     },
     {
       name: 'Tana Toraja',
@@ -39,14 +39,14 @@ export const kabupaten = [
       jumlahDPT: 40,
       link: 'palopo'
     },
-    { name: 'Luwu', coords: { top: '28%', left: '36%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'luwu' },
+    { name: 'Luwu', coords: { top: '28%', left: '36%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'luwu.xlsx' },
     {
       name: 'Enrekang',
       coords: { top: '30%', left: '22%' },
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'enrekang'
+      link: 'enrekang.xlsx'
     },
     {
       name: 'Pinrang',
@@ -54,7 +54,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'pinrang'
+      link: 'pinrang.xlsx'
     },
     {
       name: 'Sidrap',
@@ -62,25 +62,25 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'sidrap'
+      link: 'sidrap.xlsx'
     },
-    { name: 'Wajo', coords: { top: '43%', left: '35%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'wajo' },
+    { name: 'Wajo', coords: { top: '43%', left: '35%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'wajo.xlsx' },
     {
       name: 'Pare-pare',
       coords: { top: '43%', left: '13%' },
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'parepare'
+      link: 'pare_pare.xlsx'
     },
-    { name: 'Bone', coords: { top: '56%', left: '35%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'bone' },
+    { name: 'Bone', coords: { top: '56%', left: '35%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'bone.xlsx' },
     {
       name: 'Soppeng',
       coords: { top: '48%', left: '23%' },
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'soppeng'
+      link: 'soppeng.xlsx'
     },
     {
       name: 'Barru',
@@ -88,7 +88,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'barru'
+      link: 'barru.xlsx'
     },
     {
       name: 'Pangkep',
@@ -96,7 +96,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'pangkep'
+      link: 'pangkep.xlsx'
     },
     {
       name: 'Maros',
@@ -104,7 +104,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'maros'
+      link: 'maros.xlsx'
     },
     {
       name: 'Makassar',
@@ -112,16 +112,16 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'makassar'
+      link: 'makassar.xlsx'
     },
-    { name: 'Gowa', coords: { top: '70%', left: '20%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'gowa' },
+    { name: 'Gowa', coords: { top: '70%', left: '20%' }, jumlahPemilih: 20, jumlahTPS: 30, jumlahDPT: 40, link: 'gowa.xlsx' },
     {
       name: 'Sinjai',
       coords: { top: '67%', left: '35%' },
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'sinjai'
+      link: 'sinjai.xlsx'
     },
     {
       name: 'Bulukumba',
@@ -129,7 +129,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'bulukumba'
+      link: 'bulukumba.xlsx'
     },
     {
       name: 'Bantaeng',
@@ -137,7 +137,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'bantaeng'
+      link: 'bantaeng.xlsx'
     },
     {
       name: 'Jeneponto',
@@ -145,7 +145,7 @@ export const kabupaten = [
       jumlahPemilih: 20,
       jumlahTPS: 30,
       jumlahDPT: 40,
-      link: 'jeneponto'
+      link: 'jepot.xlsx'
     },
     {
       name: 'Takalar',

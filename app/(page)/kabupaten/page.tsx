@@ -13,7 +13,7 @@ export default function Page() {
                     throw new Error('Failed to fetch data');
                 }
                 const result = await response.json();
-                console.log('Grouped data:', result);
+                // console.log('Grouped data:', result);
                 setKabupatenList(result);
             } catch (error: any) {
                 console.error(error.message);

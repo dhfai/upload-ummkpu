@@ -10,6 +10,7 @@ interface DataRow {
   TPS: string;
   L: number;
   P: number;
+  status: string;
 }
 
 type GroupedData = {

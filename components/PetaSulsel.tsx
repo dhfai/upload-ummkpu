@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { IconMapPinFilled } from '@tabler/icons-react';
 import { kabupaten } from '@/utils/map';
 
 // Define a type for the kabupaten object
@@ -29,10 +29,10 @@ const PetaSulsel: React.FC = () => {
           className='absolute flex flex-col items-center cursor-pointer'
           style={{ top: kab.coords.top, left: kab.coords.left }}
         >
-          <Link href={`/tambah-data/kabupaten/${kab.link}`}>
-            <i className='tabler-map-pin-filled text-[16px] lg:text-[20px]' />
+          <Link href={`/input-tps/${kab.link}`}>
+            <IconMapPinFilled className='ml-4 text-[16px] lg:text-[20px] text-foreground/40' />
+            <div className='font-semibold'>{kab.name}</div>
           </Link>
-          <div>{kab.name}</div>
         </div>
       ))}
     </div>

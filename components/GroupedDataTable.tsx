@@ -7,6 +7,7 @@ interface DataRow {
   TPS: string;
   L: number;
   P: number;
+  status: string;
 }
 
 type GroupedData = {
@@ -43,6 +44,9 @@ const GroupedDataTable: React.FC<GroupedDataTableProps> = ({ groupedData }) => {
                 <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   P
                 </th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
               </TableRow>
             </thead>
             <TableBody>
@@ -62,6 +66,9 @@ const GroupedDataTable: React.FC<GroupedDataTableProps> = ({ groupedData }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {row.P}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {row.status}
                   </td>
                 </TableRow>
               ))}
